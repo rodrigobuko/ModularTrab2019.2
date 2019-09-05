@@ -76,9 +76,13 @@ typedef tpMatriz pMatriz;
 *     Destrói o corpo e a cabeça da matriz, anulando o ponteiro passado como parâmetro.
 *     Faz nada caso a matriz corrente não exista.
 *
+*  $FV Valor retornado
+*     MAT_CondRetOK
+*	  MAT_CondRetMatrizJaExiste
+*
 ***********************************************************************/
 
-   void MAT_DestruirMatriz( tpMatriz* pMatriz ) ;
+   MAT_tpCondRet MAT_DestruirMatriz( tpMatriz* pMatriz ) ;
 
 
 /***********************************************************************
