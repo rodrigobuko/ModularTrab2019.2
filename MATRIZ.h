@@ -6,7 +6,7 @@
 *
 ***********************************************************************/
 
-typedef tpMatriz pMatriz;
+	typedef struct tgMatriz * ptMatriz;
 
 /***********************************************************************
 *
@@ -37,6 +37,12 @@ typedef tpMatriz pMatriz;
 		 
 		 MAT_CondRetDimensaoInvalida = 6 ,
 			/* A dimensao da nova matriz deve ser maior ou igual a 1 */
+			
+		 MAT_CondRetValorJaInserido = 7 ,
+			/* A dimensao da nova matriz deve ser maior ou igual a 1 */
+			
+		 MAT_CondRetValorNaoInserido = 8 ,
+			/* A dimensao da nova matriz deve ser maior ou igual a 1 */
 
    } MAT_tpCondRet ;
 
@@ -62,7 +68,7 @@ typedef tpMatriz pMatriz;
 *
 ***********************************************************************/
 
-   MAT_tpCondRet MAT_CriarMatriz( tpMatriz* pMatriz, void** PonteirosDosValores, int dimensao ) ;
+   MAT_tpCondRet MAT_CriarMatriz( ptMatriz pMatriz, int dimensao ) ;
 
 
 /***********************************************************************
@@ -82,7 +88,7 @@ typedef tpMatriz pMatriz;
 *
 ***********************************************************************/
 
-   MAT_tpCondRet MAT_DestruirMatriz( tpMatriz* pMatriz ) ;
+   MAT_tpCondRet MAT_DestruirMatriz( ptMatriz pMatriz ) ;
 
 
 /***********************************************************************
@@ -101,9 +107,50 @@ typedef tpMatriz pMatriz;
 *
 ***********************************************************************/
 
-   MAT_tpCondRet MAT_IrVizinho( tpMatriz* pMatriz, char* Direcao ) ;
+   MAT_tpCondRet MAT_IrVizinho( ptMatriz pMatriz, char* Direcao ) ;
 
 
+/***********************************************************************
+*
+*  $FC Função: MAT Inserir valor
+*
+*  $EP Parâmetros
+*  	  $P tpMatriz - ponteiro que aponta para a matriz sobre a qual se deseja operar.
+*     $P ValorParm - ponteiro para o valor que será inserido.
+*
+*  $ED Descrição da função
+*     Insere o valor desejado no nó corrente da matriz
+*
+*  $FV Valor retornado
+*     MAT_CondRetOK
+*     MAT_CondRetMatrizNaoExiste
+*     MAT_CondRetValorJaInserido
+*
+***********************************************************************/
+
+   MAT_tpCondRet MAT_InserirValor( ptMatriz pMatriz, void * Valor ) ;
+   
+
+/***********************************************************************
+*
+*  $FC Função: MAT Excluir valor
+*
+*  $EP Parâmetros
+*  	  $P tpMatriz - ponteiro que aponta para a matriz sobre a qual se deseja operar.
+*
+*  $ED Descrição da função
+*     Exclui o valor do nó corrente da matriz, que passa a ser NULL
+*
+*  $FV Valor retornado
+*     MAT_CondRetOK
+*     MAT_CondRetMatrizNaoExiste
+*     MAT_CondRetValorNaoInserido
+*
+***********************************************************************/
+
+   MAT_tpCondRet MAT_ExcluirValor( ptMatriz pMatriz ) ;
+   
+   
 /***********************************************************************
 *
 *  $FC Função: MAT Obter valor corrente
@@ -116,8 +163,8 @@ typedef tpMatriz pMatriz;
 *  $FV Valor retornado
 *     MAT_CondRetOK
 *     MAT_CondRetMatrizNaoExiste
+*     MAT_CondRetValorNaoInserido
 *
 ***********************************************************************/
 
-   MAT_tpCondRet MAT_ObterValorCorr( tpMatriz* pMatriz, char * ValorParm ) ;
-
+   MAT_tpCondRet MAT_ObterValorCorr( ptMatriz pMatriz, void * ValorParm ) ;
