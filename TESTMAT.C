@@ -34,7 +34,6 @@
 
 #include    "matriz.h"
 #include    "lista.h"
-//#include    "testmat.h"
 
 /* Tabela dos nomes dos comandos de teste específicos */
 
@@ -53,8 +52,10 @@
 
 static ptMatriz vMatriz[QTD_MAT] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
+/*****  Protótipo de ExcluirElemento  *****/
 
-void ExcuirElemento(void * p);
+void ExcluirElemento(void * p);
+
 /***********************************************************************
 *
 *  $FC Função: TMAT Efetuar operações de teste específicas para matriz
@@ -222,12 +223,12 @@ void ExcuirElemento(void * p);
 
    } /* Fim função: TMAT Efetuar operações de teste específicas para matriz */
 
-	/*****  Função necessária para passar para lista  *****/
+/*****  Função necessária para passar para lista  *****/
 
-	void ExcuirElemento(void * p)
-	{
-		free(p);
-	}
+   void ExcluirElemento(void * p)
+   {
+	   free(p);
+   }
 
 
 
