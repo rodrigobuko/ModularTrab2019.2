@@ -1,7 +1,23 @@
+/***************************************************************************
+*  $MCI Módulo de implementação: MAT Matriz nxn
+*
+*  Arquivo gerado:              MATRIZ.c
+*  Letras identificadoras:      MAT
+*
+*  Projeto: INF 1301 Trabalho 1 Arcabouço de Testes
+*  Autor:   pmb Pedro Moll Bernardes
+*
+*  $HA Histórico de evolução:
+*     Versão  Autor    Data     Observações
+*     2       pmb   09/set/2019 revisão final do módulo
+*     1       pmb   25/ago/2019 início desenvolvimento
+*
+***************************************************************************/
+
 #include   <malloc.h>
 #include   <stdio.h>
 #include   <string.h>
-#include	"matriz.h"
+#include   "matriz.h"
 
    typedef struct tgNoMatriz {
 
@@ -27,12 +43,15 @@
 
          tpNoMatriz * pNoCorr ;
                /* Ponteiro para o nó corrente da matriz */
+			   
+		 void (*ExcluirElemento) (void * Elemento);
+			  /* Referencia uma função para destruir o valor salvo em um nó */
 
    } tpMatriz ;
    
 /***** Protótipos das funções encapuladas no módulo *****/
 
-   void PreencherMatriz(tpMatriz* pMatriz, int dimensao);
+   int PreencherMatriz(ptMatriz pMatriz, int dimensao);
 
    static tpNoMatriz * CriarNo() ;
 
@@ -43,27 +62,26 @@
 *  Função: MAT Criar matriz
 *  ****/
 
-   MAT_tpCondRet MAT_CriarMatriz( tpMatriz* pMatriz, int dimensao )
+   MAT_tpCondRet MAT_CriarMatriz( ptMatriz * pMatriz, int dimensao, void (*ExcluirElemento) (void * Elemento) )
    {
+	  ptMatriz nptr;
 	  
 	  if( dimensao < 1 ) /* a matriz deve ter dimensão maior que zero */
 		  return MAT_CondRetDimensaoInvalida;
-	  
-      if ( pMatriz != NULL )
-      {
-         return MAT_CondRetMatrizJaExiste ;
-      } /* if */
 
-      pMatriz = ( tpMatriz * ) malloc( sizeof( tpMatriz )) ;
-      if ( pMatriz == NULL )
+      nptr = ( ptMatriz ) malloc( sizeof( tpMatriz )) ;
+      if ( nptr == NULL )
       {
          return MAT_CondRetFaltouMemoria ;
       } /* if */
 
-      pMatriz->pNo01 = NULL ;
-      pMatriz->pNoCorr = NULL ;
+      nptr->pNo01 = NULL ;
+      nptr->pNoCorr = NULL ;
+	  nptr->ExcluirElemento = ExcluirElemento;
+	  *pMatriz = nptr;
 	  
-	  PreencherMatriz( pMatriz, dimensao); 
+	  if(!PreencherMatriz( *pMatriz, dimensao))
+		  return MAT_CondRetFaltouMemoria;
 
       return MAT_CondRetOK ;
 
@@ -75,15 +93,19 @@
 *  Função: MAT Destruir matriz
 *  ****/
 
-   MAT_tpCondRet MAT_DestruirMatriz( tpMatriz* pMatriz )
+   MAT_tpCondRet MAT_DestruirMatriz( ptMatriz pMatriz )
    {
+	  tpNoMatriz * pNo;
+	  tpNoMatriz * pNoAnterior;
+	  int baixo_cima;
+
 	  if( pMatriz == NULL)
 		  return MAT_CondRetMatrizNaoExiste;
 	  
-	  tpNoMatriz * pNo = pMatriz->pNo01;
-	  tpNoMatriz * pNoAnterior = pNo;
+	  pNo = pMatriz->pNo01;
+	  pNoAnterior = pNo;
 	  
-	  int baixo_cima = 0; /* valor 1 indica que a coluna deve ser percorrida ao contrário */
+	  baixo_cima = 0; /* valor 1 indica que a coluna deve ser percorrida ao contrário */
 	  
 	  while( pNo != NULL ){ /* até acabarem as colunas */
 		while(1){ /* anda na vertical até encontrar um NULL, indicando o fim da coluna */
@@ -91,6 +113,8 @@
 				pNo = pNoAnterior->pNoSul;
 				if(pNo == NULL)
 					break;
+				if(pNoAnterior->Valor != NULL)
+					pMatriz->ExcluirElemento(pNoAnterior->Valor);
 				free( pNoAnterior );
 				pNoAnterior = pNo;
 					/* passamos para o nó de baixo eliminamos o anterior */
@@ -98,18 +122,21 @@
 				pNo = pNoAnterior->pNoNorte;
 				if(pNo == NULL)
 					break;
+				if(pNoAnterior->Valor != NULL)
+					pMatriz->ExcluirElemento(pNoAnterior->Valor);
 				free( pNoAnterior );
 				pNoAnterior = pNo;
 					/* passamos para o nó de cima eliminamos o anterior */
 			}
 		}
 		pNo = pNoAnterior->pNoLeste;
+		if(pNoAnterior->Valor != NULL)
+			pMatriz->ExcluirElemento(pNoAnterior->Valor);
 		free(pNoAnterior);
+		pNoAnterior = pNo;
 		baixo_cima = !(baixo_cima); /* a próxima coluna deve ser percorrida na direção contrária */
 	  }
-	  
 	  free( pMatriz );
-	  pMatriz = NULL;
 	  
 	  return MAT_CondRetOK;
    } /* Fim função: MAT Destruir matriz */
@@ -120,18 +147,17 @@
 *  Função: MAT Ir vizinho
 *  ****/
 
-	MAT_tpCondRet MAT_IrVizinho( tpMatriz* pMatriz, char* Direcao ){
+	MAT_tpCondRet MAT_IrVizinho( ptMatriz pMatriz, char* Direcao ){
 		
+		tpNoMatriz * pNo;
 		if( pMatriz == NULL)
 			return MAT_CondRetMatrizNaoExiste;
-		
-		tpNoMatriz* pNo;
 		
 		if( strcmp(Direcao,"n") == 0 )
 			pNo = pMatriz->pNoCorr->pNoNorte;
 		else if( strcmp(Direcao,"s") == 0 )
 			pNo = pMatriz->pNoCorr->pNoSul;
-		else if( strcmp(Direcao,"l") == 0 )
+		else if( strcmp(Direcao,"e") == 0 )
 			pNo = pMatriz->pNoCorr->pNoLeste;
 		else if( strcmp(Direcao,"o") == 0 )
 			pNo = pMatriz->pNoCorr->pNoOeste;
@@ -160,7 +186,7 @@
 *  Função: MAT Inserir valor
 *  ****/
 
-	MAT_tpCondRet MAT_InserirValor( tpMatriz* pMatriz, void * Valor ){
+	MAT_tpCondRet MAT_InserirValor( ptMatriz pMatriz, void * Valor ){
 		
 		if( pMatriz == NULL)
 			return MAT_CondRetMatrizNaoExiste;
@@ -169,7 +195,7 @@
 			return MAT_CondRetValorJaInserido;
 		
 		pMatriz->pNoCorr->Valor = Valor;
-		
+
 		return MAT_CondRetOK;
 		
 	} /* Fim função: MAT Obter valor do nó corrente */
@@ -180,13 +206,15 @@
 *  Função: MAT Excluir valor
 *  ****/
 
-	MAT_tpCondRet MAT_ExcluirValor( tpMatriz* pMatriz ){
+	MAT_tpCondRet MAT_ExcluirValor( ptMatriz pMatriz ){
 		
 		if( pMatriz == NULL)
 			return MAT_CondRetMatrizNaoExiste;
 		
 		if( pMatriz->pNoCorr->Valor == NULL)
 			return MAT_CondRetValorNaoInserido;
+		
+		pMatriz->ExcluirElemento(pMatriz->pNoCorr->Valor);
 		
 		pMatriz->pNoCorr->Valor = NULL;
 		
@@ -200,20 +228,21 @@
 *  Função: MAT Obter valor corr
 *  ****/
 
-	MAT_tpCondRet MAT_ObterValorCorr( tpMatriz* pMatriz, void * ValorParm ){
+	MAT_tpCondRet MAT_ObterValorCorr( ptMatriz pMatriz, void ** ValorParm ){
+		
+		void * valorDeRetorno;
 		
 		if( pMatriz == NULL)
 			return MAT_CondRetMatrizNaoExiste;
 		
-		void * valorDeRetorno = pMatriz->pNoCorr->Valor;
+		valorDeRetorno = pMatriz->pNoCorr->Valor;
 		
 		if( valorDeRetorno == NULL)
 			return MAT_CondRetValorNaoInserido;
 		
-		ValorParm = pMatriz->pNoCorr->Valor;
+		*ValorParm = valorDeRetorno;
 		
 		return MAT_CondRetOK;
-		
 	} /* Fim função: MAT Obter valor do nó corrente */
 	
 	
@@ -238,7 +267,7 @@
       pNo = ( tpNoMatriz * ) malloc( sizeof( tpNoMatriz )) ;
       if ( pNo == NULL )
       {
-         return NULL ;
+         return NULL ; /* faltou memória */
       } /* if */
 
       pNo->pNoNorte = NULL ;
@@ -262,16 +291,21 @@
 *  $ED Descrição da função
 *     Cria todos os nós e faz a ligação entre eles.
 *
-*	$EP Parâmetros
+*  $EP Parâmetros
 *     $P pMatriz - ponteiro para a matriz que será preenchida
 *	  $P Dimensao - a dimensão n da matriz quadrada nxn que será formada. Deve ser maior que zero.
+* 
+*  $FV Valor retornado
+*     retorna 0 caso haja falta de memória
+*     retorna 1 caso a matriz seja preenchida corretamente
+*
 ***********************************************************************/
 
-   void PreencherMatriz( tpMatriz* pMatriz, int dimensao )
+   int PreencherMatriz( ptMatriz pMatriz, int dimensao )
    {
 	   tpNoMatriz * pNo;
 	   tpNoMatriz * pNoAnterior;
-	   int coluna;
+	   int esquerda_direita, i, j;
 	   
 	   /* primeiro nó */
 	    pNoAnterior = CriarNo();
@@ -280,24 +314,30 @@
 		pMatriz->pNoCorr = pNoAnterior;
 	   
 	   /* primeira linha */
-		for( int j = 1; j < dimensao; j++ ){
+		for(j = 1; j < dimensao; j++ ){
 			pNo = CriarNo();
+			if(pNo == NULL){ /* faltou memória */
+				return 0;
+			}
 			
 			pNo->pNoOeste = pNoAnterior;
 			pNoAnterior->pNoLeste = pNo;
 			
 			pNoAnterior = pNo;
         }
-		coluna = dimensao - 1; /* a proxima linha deve ser percorrida para a esquerda */
+		esquerda_direita = 0; /* a proxima linha deve ser percorrida para a esquerda */
 		
 	   /* demais linhas */
-	    for( int i = 1; i < dimensao; i++ ){
+	    for(i = 1; i < dimensao; i++ ){
 			
-			if( coluna == 0 ){ /*percorrendo a linha da esquerda para a direita */
-				for(int j = 0; j < dimensao; j++ ){
+			if( esquerda_direita ){ /*percorrendo a linha da esquerda para a direita */
+				for(j = 0; j < dimensao; j++ ){
 					
 					pNo = CriarNo();
-					
+					if(pNo == NULL){ /* faltou memória */
+						return 0;
+					}
+			
 					if( j != 0 ){ /* são feitas as ligações com o nó anterior (da esquerda), com o nó de cima, com o nó acima do anterior, e do nó anterior com o nó acima do atual*/
 						pNo->pNoOeste = pNoAnterior;
 						pNoAnterior->pNoLeste = pNo;
@@ -316,13 +356,16 @@
 						pNo->pNoNorte = pNoAnterior;
 					}
 					pNoAnterior = pNo;
-					coluna = j; /* j = dimensao - 1, a proxima linha será percorrida da direita para a esquerda */
 				}
+				esquerda_direita = 0; /* a proxima linha será percorrida da direita para a esquerda */
 			}
 			else{ /*percorrendo a linha da direita para a esquerda */
-				for( int j = dimensao - 1; j <= 0; j-- ){
+				for(j = dimensao - 1; j >= 0; j-- ){
 					
 					pNo = CriarNo();
+					if(pNo == NULL){ /* faltou memória */
+						return 0;
+					}
 					
 					if( j != dimensao-1 ){ /* são feitas as ligações com o nó anterior (da direita), com o nó de cima, com o nó acima do anterior, e do nó anterior com o nó acima do atual*/
 						pNo->pNoLeste = pNoAnterior;
@@ -342,11 +385,11 @@
 						pNo->pNoNorte = pNoAnterior;
 					}
 					pNoAnterior = pNo;
-					coluna = j; /* j = 0, a proxima linha será percorrida da esquerda para a direita */
 				}
+				esquerda_direita = 1; /* a proxima linha será percorrida da esquerda para a direita */
 			}
 		}
-
+		return 1;
    } /* Fim função: MAT Preencher matriz */
    
    

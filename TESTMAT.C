@@ -11,6 +11,7 @@
 *     Este módulo contém as funções específicas para o teste do
 *     módulo matriz.
 *
+
 *  $EIU Interface com o usuário pessoa
 *     Comandos de teste específicos para testar o módulo matriz:
 *
@@ -19,7 +20,17 @@
 *     "=obter"
 *                   - chama a função MAT_ObterValorCorr( ) e compara
 *                     o valor retornado com o valor <Char>
-*     "=destroi"    - chama a função MAT_DestruirMatriz( )
+*     "=inserir"    - chama a função MAT_InserirValor( )
+*     "=excluir"    - chama a função MAT_ExcluirValor( )
+*     "=destruir"   - chama a função MAT_DestruirMatriz( )
+*
+*  Projeto: INF 1301 Trabalho 1 Arcabouço de Testes
+*  Autor:   Antônio Catão Saboia
+*
+*  $HA Histórico de evolução:
+*     Versão  	Autor   Data      		Observações
+*     2        	acs		09/set/2019   	revisão do módulo
+*     1        	acs		01/set/2019   	início do desenvolvimento
 *
 ***************************************************************************/
 
@@ -42,19 +53,24 @@
 #define     OBTER_VAL_CMD       "=obter"
 #define     INSERIR_VAL_CMD     "=inserir"
 #define     EXCLUIR_VAL_CMD     "=excluir"
-#define     DESTROI_CMD         "=destruir"
+#define     DESTRUIR_CMD        "=destruir"
 
 /* DEFINES */
 
 #define     QTD_MAT             10
+#define     STR_TAM             256
+
+/*****  Função necessária para passar para lista.c  *****/
+
+void ExcluirElemento(void * p)
+{
+    free(p);
+}
 
 /*****  Inicialização de variáveis estáticas do módulo  *****/
 
 static ptMatriz vMatriz[QTD_MAT] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
-/*****  Protótipo de ExcluirElemento  *****/
-
-void ExcluirElemento(void * p);
 
 /***********************************************************************
 *
@@ -80,9 +96,13 @@ void ExcluirElemento(void * p);
                                       /* inicializa para qualquer coisa */
 
       char ValorEsperado = '?'  ;
-      char StringDado[]  = "??" ;
-      int  IntDado1      = -1 ;
-	  int  IntDado2      = -1 ;
+	  char ValorObtido   = '!'  ;
+	  
+      char StringDadoEst[STR_TAM];
+	  char * StringDadoDin;
+	  
+      int  IntDado1      = -1   ;
+	  int  IntDado2      = -1   ;
 	  
 	  int i;
 	  LIS_tppLista ListaDada;
@@ -95,7 +115,6 @@ void ExcluirElemento(void * p);
 	
 
       /* Testar MAT Criar matriz */
-
          if ( strcmp( ComandoTeste , CRIAR_MAT_CMD ) == 0 )
          {
 
@@ -106,7 +125,7 @@ void ExcluirElemento(void * p);
                return TST_CondRetParm ;
             } /* if */
 
-            CondRetObtido = MAT_CriarMatriz( vMatriz[IntDado1], IntDado2 ) ;
+            CondRetObtido = MAT_CriarMatriz( &vMatriz[IntDado1], IntDado2, LIS_DestruirLista ) ;
 
             return TST_CompararInt( CondRetEsperada , CondRetObtido ,
                                     "Retorno errado ao criar matriz." );
@@ -119,13 +138,13 @@ void ExcluirElemento(void * p);
          {
 
             NumLidos = LER_LerParametros( "isi" ,
-                               &IntDado1, StringDado , &CondRetEsperada ) ;
+                               &IntDado1, StringDadoEst , &CondRetEsperada ) ;
             if ( NumLidos != 3 )
             {
                return TST_CondRetParm ;
             } /* if */
 
-            CondRetObtido = MAT_IrVizinho( vMatriz[IntDado1], StringDado ) ;
+            CondRetObtido = MAT_IrVizinho( vMatriz[IntDado1], StringDadoEst ) ;
 
             return TST_CompararInt( CondRetEsperada , CondRetObtido ,
                                     "Retorno errado ao ir para vizinho." );
@@ -145,16 +164,17 @@ void ExcluirElemento(void * p);
             } /* if */
 
             CondRetObtido = MAT_ObterValorCorr( vMatriz[IntDado1], &ListaObtida ) ;
-
+			
             Ret = TST_CompararInt( CondRetEsperada , CondRetObtido ,
                                    "Retorno errado ao obter valor corrente." );
-
-            if ( Ret != TST_CondRetOK )
+			
+            if ( Ret != TST_CondRetOK || CondRetObtido != MAT_CondRetOK )
             {
                return Ret ;
             } /* if */
 
-            return TST_CompararChar( ValorEsperado , *((char *)LIS_ObterValor(ListaObtida)) ,
+			ValorObtido = *((char *)LIS_ObterValor(ListaObtida));
+            return TST_CompararChar( ValorEsperado , ValorObtido ,
                                      "Conteúdo do nó está errado." ) ;
 
          } /* fim ativa: Testar MAT Obter valor corrente */
@@ -165,7 +185,7 @@ void ExcluirElemento(void * p);
          {
 
             NumLidos = LER_LerParametros( "isi" ,
-                               &IntDado1, StringDado , &CondRetEsperada ) ;
+                               &IntDado1, StringDadoEst , &CondRetEsperada ) ;
             if ( NumLidos != 3 )
             {
                return TST_CondRetParm ;
@@ -173,13 +193,29 @@ void ExcluirElemento(void * p);
 			
 			ListaDada = LIS_CriarLista(ExcluirElemento);
 			
-			for (i = 0; StringDado[i]!='\0'; i++)
+			StringDadoDin = (char*) malloc(sizeof(char)*STR_TAM);
+			if(StringDadoDin == NULL)
 			{
-				LIS_InserirElementoApos(ListaDada, &(StringDado[i]));
+				printf("Faltou memoria\n");
+				exit(1);
+			}
+			strcpy(StringDadoDin, StringDadoEst);
+
+			for (i = 0; StringDadoDin[i]!='\0'; i++)
+			{
+				LIS_InserirElementoApos(ListaDada, &(StringDadoDin[i]));
+			}
+			IrInicioLista( ListaDada ) ;
+			
+			ValorObtido = *((char *)LIS_ObterValor(ListaDada));
+            CondRetObtido = MAT_InserirValor( vMatriz[IntDado1], ListaDada ) ;
+			
+			/* Liberar a string alocada dinamicamente caso não seja inserida na matriz */
+			if(CondRetObtido != MAT_CondRetOK)
+			{
+				free(StringDadoDin);
 			}
 			
-            CondRetObtido = MAT_InserirValor( vMatriz[IntDado1], ListaDada ) ;
-
             return TST_CompararInt( CondRetEsperada , CondRetObtido ,
                                     "Retorno errado ao inserir valor." );
 
@@ -206,7 +242,7 @@ void ExcluirElemento(void * p);
 
       /* Testar MAT Destruir matriz */
 
-         else if ( strcmp( ComandoTeste , DESTROI_CMD ) == 0 )
+         else if ( strcmp( ComandoTeste , DESTRUIR_CMD ) == 0 )
          {
             NumLidos = LER_LerParametros( "i", &IntDado1 ) ;
             if ( NumLidos != 1 )
@@ -214,6 +250,7 @@ void ExcluirElemento(void * p);
                return TST_CondRetParm ;
             } /* if */
             MAT_DestruirMatriz( vMatriz[IntDado1] ) ;
+			vMatriz[IntDado1] = NULL;
 
             return TST_CondRetOK ;
 
@@ -222,15 +259,6 @@ void ExcluirElemento(void * p);
       return TST_CondRetNaoConhec ;
 
    } /* Fim função: TMAT Efetuar operações de teste específicas para matriz */
-
-/*****  Função necessária para passar para lista  *****/
-
-   void ExcluirElemento(void * p)
-   {
-	   free(p);
-   }
-
-
 
 /********** Fim do módulo de implementação: Módulo de teste específico **********/
 
