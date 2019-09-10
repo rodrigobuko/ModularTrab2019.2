@@ -25,9 +25,9 @@
 *  Autor:   acs      Antônio Catão Saboia
 *
 *  $HA Histórico de evolução:
-*     Versão  	Autor   Data      		Observações
-*     2        	acs		09/set/2019   	revisão do módulo
-*     1        	acs		01/set/2019   	início do desenvolvimento
+*     Versão    Autor   Data            Observações
+*     2         acs     09/set/2019     revisão do módulo
+*     1         acs     01/set/2019     início do desenvolvimento
 *
 ***************************************************************************/
 
@@ -93,23 +93,23 @@ static ptMatriz vMatriz[QTD_MAT] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NU
                                       /* inicializa para qualquer coisa */
 
       char ValorEsperado = '?'  ;
-	  char ValorObtido   = '!'  ;
-	  
+      char ValorObtido   = '!'  ;
+      
       char StringDadoEst[STR_TAM];
-	  char * StringDadoDin;
-	  
+      char * StringDadoDin;
+      
       int  IntDado1      = -1   ;
-	  int  IntDado2      = -1   ;
-	  
-	  int i;
-	  LIS_tppLista ListaDada;
-	  LIS_tppLista ListaObtida;
-	  
+      int  IntDado2      = -1   ;
+      
+      int i;
+      LIS_tppLista ListaDada;
+      LIS_tppLista ListaObtida;
+      
       int  NumLidos = -1 ;
 
       TST_tpCondRet Ret ;
 
-	
+    
 
       /* Testar MAT Criar matriz */
          if ( strcmp( ComandoTeste , CRIAR_MAT_CMD ) == 0 )
@@ -161,16 +161,16 @@ static ptMatriz vMatriz[QTD_MAT] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NU
             } /* if */
 
             CondRetObtido = MAT_ObterValorCorr( vMatriz[IntDado1], &ListaObtida ) ;
-			
+            
             Ret = TST_CompararInt( CondRetEsperada , CondRetObtido ,
                                    "Retorno errado ao obter valor corrente." );
-			
+            
             if ( Ret != TST_CondRetOK || CondRetObtido != MAT_CondRetOK )
             {
                return Ret ;
             } /* if */
 
-			ValorObtido = *((char *)LIS_ObterValor(ListaObtida));
+            ValorObtido = *((char *)LIS_ObterValor(ListaObtida));
             return TST_CompararChar( ValorEsperado , ValorObtido ,
                                      "Conteúdo do nó está errado." ) ;
 
@@ -187,32 +187,32 @@ static ptMatriz vMatriz[QTD_MAT] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NU
             {
                return TST_CondRetParm ;
             } /* if */
-			
-			ListaDada = LIS_CriarLista(ExcluirElemento);
-			
-			StringDadoDin = (char*) malloc(sizeof(char)*STR_TAM);
-			if(StringDadoDin == NULL)
-			{
-				printf("Faltou memoria\n");
-				exit(1);
-			}
-			strcpy_s(StringDadoDin, sizeof(char)*STR_TAM, StringDadoEst);
+            
+            ListaDada = LIS_CriarLista(ExcluirElemento);
+            
+            StringDadoDin = (char*) malloc(sizeof(char)*STR_TAM);
+            if(StringDadoDin == NULL)
+            {
+                printf("Faltou memoria\n");
+                exit(1);
+            }
+            strcpy_s(StringDadoDin, sizeof(char)*STR_TAM, StringDadoEst);
 
-			for (i = 0; StringDadoDin[i]!='\0'; i++)
-			{
-				LIS_InserirElementoApos(ListaDada, &(StringDadoDin[i]));
-			}
-			IrInicioLista( ListaDada ) ;
-			
-			ValorObtido = *((char *)LIS_ObterValor(ListaDada));
+            for (i = 0; StringDadoDin[i]!='\0'; i++)
+            {
+                LIS_InserirElementoApos(ListaDada, &(StringDadoDin[i]));
+            }
+            IrInicioLista( ListaDada ) ;
+            
+            ValorObtido = *((char *)LIS_ObterValor(ListaDada));
             CondRetObtido = MAT_InserirValor( vMatriz[IntDado1], ListaDada ) ;
-			
-			/* Liberar a string alocada dinamicamente caso não seja inserida na matriz */
-			if(CondRetObtido != MAT_CondRetOK)
-			{
-				free(StringDadoDin);
-			}
-			
+            
+            /* Liberar a string alocada dinamicamente caso não seja inserida na matriz */
+            if(CondRetObtido != MAT_CondRetOK)
+            {
+                free(StringDadoDin);
+            }
+            
             return TST_CompararInt( CondRetEsperada , CondRetObtido ,
                                     "Retorno errado ao inserir valor." );
 
@@ -247,7 +247,7 @@ static ptMatriz vMatriz[QTD_MAT] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NU
                return TST_CondRetParm ;
             } /* if */
             MAT_DestruirMatriz( vMatriz[IntDado1] ) ;
-			vMatriz[IntDado1] = NULL;
+            vMatriz[IntDado1] = NULL;
 
             return TST_CondRetOK ;
 
