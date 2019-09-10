@@ -4,9 +4,6 @@
 *  Arquivo gerado:              TESTMAT.C
 *  Letras identificadoras:      TMAT
 *
-*  Nome da base de software:    Exemplo de teste automatizado
-*  Arquivo da base de software: D:\AUTOTEST\PROJETOS\SIMPLES.BSW
-*
 *  $ED Descrição do módulo
 *     Este módulo contém as funções específicas para o teste do
 *     módulo matriz.
@@ -25,7 +22,7 @@
 *     "=destruir"   - chama a função MAT_DestruirMatriz( )
 *
 *  Projeto: INF 1301 Trabalho 1 Arcabouço de Testes
-*  Autor:   Antônio Catão Saboia
+*  Autor:   acs      Antônio Catão Saboia
 *
 *  $HA Histórico de evolução:
 *     Versão  	Autor   Data      		Observações
@@ -199,7 +196,7 @@ static ptMatriz vMatriz[QTD_MAT] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NU
 				printf("Faltou memoria\n");
 				exit(1);
 			}
-			strcpy(StringDadoDin, StringDadoEst);
+			strcpy_s(StringDadoDin, sizeof(char)*STR_TAM, StringDadoEst);
 
 			for (i = 0; StringDadoDin[i]!='\0'; i++)
 			{
@@ -261,4 +258,3 @@ static ptMatriz vMatriz[QTD_MAT] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NU
    } /* Fim função: TMAT Efetuar operações de teste específicas para matriz */
 
 /********** Fim do módulo de implementação: Módulo de teste específico **********/
-
