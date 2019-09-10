@@ -1,21 +1,21 @@
 /***************************************************************************
 *  $MCI Módulo de implementação: MAT Matriz nxn
 *
-*  Arquivo gerado:              MATRIZ.c
+*  Arquivo gerado:              MATRIZ.C
 *  Letras identificadoras:      MAT
 *
 *  Projeto: INF 1301 Trabalho 1 Arcabouço de Testes
 *  Autor:   pmb Pedro Moll Bernardes
 *
 *  $HA Histórico de evolução:
-*     Versão  Autor    Data     Observações
-*     2       pmb   09/set/2019 revisão final do módulo
-*     1       pmb   25/ago/2019 início desenvolvimento
+*     4		  pmb   9/set/2019 revisão final do módulo
+*	  3		  pmb   6/set/2019 ajustes de debug durante testes integrados
+*     2       pmb   30/ago/2019 alteração das funcionalidade de inicialização/manipulação
+*     1       pmb   27/ago/2019 início desenvolvimento
 *
 ***************************************************************************/
 
 #include   <malloc.h>
-#include   <stdio.h>
 #include   <string.h>
 #include   "matriz.h"
 
@@ -393,3 +393,4 @@
    } /* Fim função: MAT Preencher matriz */
    
    
+/********** Fim do módulo de implementação: MAT Matriz nxn **********/
